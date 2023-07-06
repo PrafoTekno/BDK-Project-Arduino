@@ -1,11 +1,10 @@
 
-#include <SPI.h>
-#include <nRF24L01.h>
-#include <RF24.h>
+// Remote
+#define ch1 A1
+#define ch2 A0
 
-RF24 radio(7, 6); // CE, CSN
-int pesan [4];
-const byte address[6] = "00013";
+double ch1_val, ch2_val;
+double ch1_nilai, ch2_nilai;
 
 // R = A
 // L = B
@@ -22,10 +21,12 @@ const int Enable_motorL = 10;
 
 int speedL;
 
-//const int led = 13;
-
 void setup() {
+  // put your setup code here, to run once:
 
+  pinMode (ch1, INPUT);
+  pinMode (ch2, INPUT);
+  
   pinMode (In1_motorR, OUTPUT);
   pinMode (In2_motorR, OUTPUT);
   pinMode (Enable_motorR, OUTPUT);
@@ -35,116 +36,56 @@ void setup() {
   pinMode (Enable_motorL, OUTPUT);
   
   Serial.begin(9600);
-  //pinMode (led, OUTPUT);
-  
-  radio.begin();
-  radio.openReadingPipe(0, address);
-  radio.setPALevel(RF24_PA_MAX);
-  radio.startListening();
   
 }
 
 void loop() {
+  // put your main code here, to run repeatedly:
+
+  ch1_val = pulseIn (ch1, HIGH);
+  ch2_val = pulseIn (ch2, HIGH);
+
+  ch1_nilai = map (ch1_val, 0, 2030, 0, 200);
+  ch2_nilai = map (ch2_val, 0, 2030, 0, 200);
+
+  Serial.print ("ch1 : ");
+  Serial.print (ch1_nilai);
+  Serial.print (" | ch2 : ");
+  Serial.println (ch2_nilai);
+  delay (100);
   
-  while (radio.available()) {
-
-    int pb_yellow = pesan[0];
-    int pb_red = pesan[1];
-    int pos_x = pesan[2];
-    int pos_y = pesan[3];
+  if (ch1_nilai >= 167 && ch1_nilai <= 200) {
     
-    radio.read (pesan, sizeof (pesan));
+    speedR = 500;
+    speedL = 500;
+    Kanan ();
     
-    if (pb_yellow == 1 && pb_red == 0) { // Maju kuning
-
-      if (pos_y >= 0 && pos_y <= 49) {
-        speedR = 500;
-        speedL = 75;
-        Maju_Kiri ();
-      }
-      else if (pos_y >= 51 && pos_y <= 99) {
-        speedR = 75;
-        speedL = 500;
-        Maju_Kanan ();
-      }
-      else {
-        speedR = 500;
-        speedL = 500;
-        Maju ();
-      }
-      
-      
-    }
-    else if (pb_yellow == 0 && pb_red == 1) { // Mundur merah
-      
-      if (pos_y >= 0 && pos_y <= 49) {
-        speedR = 75;
-        speedL = 500;
-        Mundur_Kiri ();
-      }
-      else if (pos_y >= 51 && pos_y <= 99) {
-        speedR = 500;
-        speedL = 75;
-        Mundur_Kanan ();
-      }
-      else {
-        speedR = 500;
-        speedL = 500;
-        Mundur ();    
-      }
-    
-    }
-    else if (pos_y >= 0 && pos_y <= 49) {
-
-      if (pb_yellow == 1 && pb_red == 0) {
-        speedR = 500;
-        speedL = 75;
-        Maju_Kiri ();
-      }
-      else if (pb_yellow == 0 && pb_red == 1) {
-        speedR = 75;
-        speedL = 500;
-        Mundur_Kiri ();
-      }
-      else {
-        speedR = 500;
-        speedL = 500;
-        Kiri ();  
-      }
-      
-    }
-    else if (pos_y >= 51 && pos_y <= 99 ) {
-      
-      if (pb_yellow == 1 && pb_red == 0) {
-        speedR = 75;
-        speedL = 500;
-        Maju_Kanan ();
-      }
-      else if (pb_yellow == 0 && pb_red == 1) {
-        speedR = 500;
-        speedL = 75;
-        Mundur_Kanan ();
-      }
-      else {
-        speedR = 500;
-        speedL = 500;
-        Kiri ();  
-      }
-
-    }
-    else {
-      Stop ();
-    }
-
-    Serial.print ("Maju : ");
-    Serial.print (pesan[0]);
-    Serial.print (" | y : ");
-    Serial.print (pesan[3]);
-    Serial.print (" | Enable R : ");
-    Serial.println (Enable_motorR); 
-    delay (100);
-   
   }
+  else if (ch1_nilai <= 130 && ch1_nilai >= 95) {
+    
+    speedR = 500;
+    speedL = 500;
+    Kiri ();
+    
+  }
+  else if (ch2_nilai <= 150 && ch2_nilai >= 142) {
+     
+     speedR = 500;
+     speedL = 500;
+     Maju ();
+    
+  }
+  else if (ch2_nilai <= 195 && ch2_nilai >= 180) {
+      
+      speedR = 500;
+      speedL = 500;
+      Mundur ();
+    
+  }
+  else {
+    Stop ();
+  }
+  
 }
 
 void Mundur () {
