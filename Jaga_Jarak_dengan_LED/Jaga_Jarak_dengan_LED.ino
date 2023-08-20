@@ -25,7 +25,7 @@ void loop() {
 
   digitalWrite (trig_pin, LOW);
   delayMicroseconds (2);
-  digitalWcomprite (trig_pin, HIGH);
+  digitalWrite (trig_pin, HIGH);
   delayMicroseconds (10);
   digitalWrite (trig_pin, LOW);
 
