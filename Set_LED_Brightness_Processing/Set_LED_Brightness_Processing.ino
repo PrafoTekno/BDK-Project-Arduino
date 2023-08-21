@@ -1,5 +1,6 @@
 
 const int led = 6;
+
 int dataRead;
 int brightness;
 
@@ -7,6 +8,7 @@ void setup() {
   // put your setup code here, to run once:
 
   Serial.begin (9600);
+
   pinMode (led, OUTPUT);
   
 }
